@@ -1,14 +1,14 @@
 import scala.util.Try
 
-final case class Triangle(value: Int, left: Option[Triangle], right: Option[Triangle])
+final case class Triangle(value: Int, left: Option[Triangle] = None, right: Option[Triangle] = None )
 
 object MinimumTrianglePath {
-  def buildTriangle(position: Int, nodes: List[List[Int]]): Option[Triangle] = nodes match {
+  def buildTriangle(nodes: List[List[Int]], position: Int = 0): Option[Triangle] = nodes match {
     case head :: tail if head.lift(position).isDefined =>
       Some(Triangle(
         head(position),
-        left = buildTriangle(position, tail),
-        right = buildTriangle(position + 1, tail)
+        left = buildTriangle(tail, position),
+        right = buildTriangle(tail, position + 1)
       ))
     case _ => None
   }
@@ -30,7 +30,7 @@ object MinimumTrianglePath {
     }.getOrElse(List(List()))
 
 
-    buildTriangle(0, nodes) match {
+    buildTriangle(nodes) match {
       case Some(triangle) =>
         val minPath = findMinPath(triangle)
         println(s"Minimal path is: ${minPath.mkString(" + ")} = ${minPath.sum}")

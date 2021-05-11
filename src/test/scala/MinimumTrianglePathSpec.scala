@@ -12,28 +12,28 @@ class MinimumTrianglePathSpec extends AnyWordSpec {
   val triangle = Triangle(7,
     Some(Triangle(6,
       Some(Triangle(3,
-        Some(Triangle(11, None, None)),
-        Some(Triangle(2, None, None)))),
-      Some(Triangle(8, Some(Triangle(2, None, None)),
-        Some(Triangle(10, None, None)))))),
+        Some(Triangle(11)),
+        Some(Triangle(2)))),
+      Some(Triangle(8, Some(Triangle(2)),
+        Some(Triangle(10)))))),
     Some(Triangle(3,
       Some(Triangle(8,
-        Some(Triangle(2, None, None)),
-        Some(Triangle(10, None, None)))),
+        Some(Triangle(2)),
+        Some(Triangle(10)))),
       Some(Triangle(5,
-        Some(Triangle(10, None, None)),
-        Some(Triangle(9, None, None)))))))
+        Some(Triangle(10)),
+        Some(Triangle(9)))))))
 
   "buildTriangle" should {
     "construct triangle if input is correct" in {
-      val result = MinimumTrianglePath.buildTriangle(0, nodes)
+      val result = MinimumTrianglePath.buildTriangle(nodes)
 
       assert(result.isDefined)
       assert(result.contains(triangle))
     }
 
     "fails if input is empty" in {
-      val triangle = MinimumTrianglePath.buildTriangle(0, List())
+      val triangle = MinimumTrianglePath.buildTriangle(List())
       assert(triangle.isEmpty)
     }
   }
@@ -45,6 +45,19 @@ class MinimumTrianglePathSpec extends AnyWordSpec {
       assert(result.size == 4)
       assert(result == List(7, 6, 3, 2))
       assert(result.sum == 18)
+    }
+
+    "correctly stop processing if triangle is not complete" in {
+      val result = MinimumTrianglePath.findMinPath(
+        Triangle(
+          7,
+          Some(Triangle(2)),
+          None
+        )
+      )
+
+      assert(result.size == 1)
+      assert(result.sum == 7)
     }
 
     "return 0 from empty triangle" in {
