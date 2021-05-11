@@ -1,10 +1,10 @@
-# Assumptions
+# Solution Assumptions
 
 - input is finite
-- each number is separated by one space
+- each line represents one row in triangle
+- numbers in a row are separated by one space
 - triangle has only one root
-- only one minimal path
-- input contains only numbers
-- negative numbers?
-- number in triagle aren't ordered
+- every triangle only one minimal path
+- input can contain only numbers
+- numbers in triangle don't have to be ordered in any way
 - triangle is always complete
