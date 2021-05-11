@@ -1,66 +1,41 @@
+import scala.util.Try
 
-object MinimumTrianglePath extends App {
+final case class Triangle(value: Int, left: Option[Triangle], right: Option[Triangle])
 
-  final case class Triangle(value: Int, left: Option[Triangle] = None, right: Option[Triangle] = None)
-
-  object Triangle {
-    def apply(value: Int, left: Triangle, right: Triangle): Triangle = {
-      new Triangle(value, Some(left), Some(right))
-    }
+object MinimumTrianglePath {
+  def buildTriangle(position: Int, nodes: List[List[Int]]): Option[Triangle] = nodes match {
+    case head :: tail if head.lift(position).isDefined =>
+      Some(Triangle(
+        head(position),
+        left = buildTriangle(position, tail),
+        right = buildTriangle(position + 1, tail)
+      ))
+    case _ => None
   }
 
-  val nodeTriangle =
-    Triangle(7,
-      Triangle(6,
-        Triangle(3,
-          Triangle(11),
-          Triangle(2)
-        ),
-        Triangle(8,
-          Triangle(2),
-          Triangle(10)
-        )
-      ),
-      Triangle(3,
-        Triangle(8,
-          Triangle(2),
-          Triangle(10)
-        ),
-        Triangle(5,
-          Triangle(10),
-          Triangle(9)
-        )
-      )
-    )
-
-  def minPath(triangle: Triangle): List[Int] = triangle match {
+  def findMinPath(triangle: Triangle): List[Int] = triangle match {
     case Triangle(value, Some(left), Some(right)) =>
-      val leftMinPath = minPath(left)
-      val rightMinPath = minPath(right)
+      val leftMinPath = findMinPath(left)
+      val rightMinPath = findMinPath(right)
 
       value :: (if (leftMinPath.sum < rightMinPath.sum) leftMinPath else rightMinPath)
     case Triangle(value, _, _) => List(value)
   }
 
+  def main(args: Array[String]): Unit = {
+    val lines: List[String] = io.Source.stdin.getLines.toList
 
-//    val input = List("7", "6 3", "3 8 5", "11 2 10 9")
-//  val input = List("2", "3 4", "6 5 7", "4 1 8 3")
+    val nodes = Try{
+      lines.map(_.trim.split("\\s+").toList.map(_.toInt))
+    }.getOrElse(List(List()))
 
 
-  def buildTriangle(level: Int, lines: List[List[Int]]): Option[Triangle] = lines match {
-    case head :: tail =>
-      Some(Triangle(
-        head(level),
-        left = buildTriangle(level, tail),
-        right = buildTriangle(level + 1, tail)
-      ))
-    case _ => None
+    buildTriangle(0, nodes) match {
+      case Some(triangle) =>
+        val minPath = findMinPath(triangle)
+        println(s"Minimal path is: ${minPath.mkString(" + ")} = ${minPath.sum}")
+      case None =>
+        println("Triangle cannot be constructed")
+    }
   }
-
-  val input = io.Source.stdin.getLines.toList
-  val triangle = input.map(i => i.trim.split("\\s+").toList.map(_.toInt))
-
-  println(minPath(buildTriangle(0, triangle).get))
-  println("DONE")
-
 }
